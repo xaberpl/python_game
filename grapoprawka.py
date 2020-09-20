@@ -1,9 +1,11 @@
 import pygame, sys, random, pygame.freetype
+import os
 from math import sqrt
 
 screen_width = 1600
 screen_height = 800
 score_value = 0
+os.environ['SDL_VIDEO_WINDOW_POS'] = '%i,%i' % (0, 30)
 
 class Food(object):
     def __init__(self):
