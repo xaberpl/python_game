@@ -9,6 +9,13 @@ score_value = 0
 # window center
 os.environ['SDL_VIDEO_WINDOW_POS'] = '%i,%i' % (0, 30)
 
+class Arrow(object):
+    def __init__(self, x, y):
+        self.x = x
+        self.y = y
+    def Draw(self):
+        show_arrowimg(self.x, self.y)
+
 class Food(object):
     def __init__(self):
         self.phase = random.uniform(0, 2 * pi)
@@ -43,12 +50,9 @@ for i in range (0, 50):
 
 screen = pygame.display.set_mode((screen_width, screen_height))
 
-box = pygame.Rect(0, 0, 50, 50)
-
-# Score
-
 font = pygame.font.Font('freesansbold.ttf', 32)
-foodimg = pygame.image.load('destroy.tga').convert_alpha()
+foodimg = pygame.image.load('destroy.tga')
+arrowimg = pygame.image.load('arrow.png')
 
 textX = 10
 testY = 10
@@ -64,20 +68,20 @@ def show_img(x, y, alpha):
     image.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
     screen.blit(image, (x, y))
 
+def show_arrowimg(x, y):
+    screen.blit(arrowimg, (x, y))
+
 clock = pygame.time.Clock()
 delta = 0.0
 max_tps = 200.0
 
-while True:
+arrow = Arrow(0, 0)
 
+while True:
+    show_arrowimg(arrow.x, arrow.y)
     t = pygame.time.get_ticks()
 
     show_score(textX, testY)
-
-    #show_img(100, 100, q)
-    show_img(150, 100, 0)
-    show_img(250, 100, 0)
-    show_img(320, 100, 0)
 
     #print(q)
 
@@ -94,14 +98,13 @@ while True:
         keys = pygame.key.get_pressed()
 
         if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            box.x += 1
-            print(clock)
+            arrow.x += 1
         if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            box.x -= 1
+            arrow.x -= 1
         if keys[pygame.K_w] or keys[pygame.K_UP]:
-            box.y -= 1
+            arrow.y -= 1
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            box.y += 1
+            arrow.y += 1
 
     #drawing
 
@@ -109,10 +112,8 @@ while True:
         food.Draw()
 
     for food in foods:
-        if sqrt((box.x + 25 - food.x)*(box.x + 25 - food.x)+(box.y + 25 - food.y)*(box.y + 25 - food.y)) < 35:
+        if sqrt((arrow.x + 25 - food.x)*(arrow.x + 25 - food.x)+(arrow.y + 25 - food.y)*(arrow.y + 25 - food.y)) < 35:
             food.Eat()
-
-    pygame.draw.rect(screen, (0, 150, 255), box)
 
     pygame.display.flip()
     screen.fill((0, 0, 0))
