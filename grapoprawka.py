@@ -5,7 +5,11 @@ from math import sqrt
 screen_width = 1600
 screen_height = 800
 score_value = 0
+
+# window center
 os.environ['SDL_VIDEO_WINDOW_POS'] = '%i,%i' % (0, 30)
+
+
 
 class Food(object):
     def __init__(self):
@@ -38,6 +42,8 @@ for i in range (0, 50):
 
 screen = pygame.display.set_mode((screen_width, screen_height))
 box = pygame.Rect(0, 0, 50, 50)
+halfx = box.x/2
+
 
 # Score
 
@@ -83,15 +89,15 @@ while True:
             box.y += 1
 
     #drawing
-    pygame.draw.rect(screen, (0, 150, 255), box)
+
 
     for food in foods:
         food.Draw()
 
     for food in foods:
-        if sqrt((box.x - food.x)*(box.x - food.x)+(box.y - food.y)*(box.y - food.y)) < 35:
+        if sqrt((box.x + 25 - food.x)*(box.x + 25 - food.x)+(box.y + 25 - food.y)*(box.y + 25 - food.y)) < 35:
             food.Eat()
-
+    pygame.draw.rect(screen, (0, 150, 255), box)
 
     pygame.display.flip()
     screen.fill((0, 0, 0))
