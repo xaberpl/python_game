@@ -1,6 +1,6 @@
 import pygame, sys, random, pygame.freetype
 import os
-from math import sqrt
+from math import sqrt, sin, pi
 
 screen_width = 1600
 screen_height = 800
@@ -8,7 +8,6 @@ score_value = 0
 
 # window center
 os.environ['SDL_VIDEO_WINDOW_POS'] = '%i,%i' % (0, 30)
-
 
 
 class Food(object):
@@ -33,7 +32,10 @@ class Food(object):
         self.eatten = True
 
 
+
 pygame.init()
+
+
 
 foods = []
 for i in range (0, 50):
@@ -41,14 +43,15 @@ for i in range (0, 50):
     foods.append(Food())
 
 screen = pygame.display.set_mode((screen_width, screen_height))
+
+
 box = pygame.Rect(0, 0, 50, 50)
 halfx = box.x/2
 
-
 # Score
 
-
 font = pygame.font.Font('freesansbold.ttf', 32)
+foodimg = pygame.image.load('destroy.tga').convert_alpha()
 
 textX = 10
 testY = 10
@@ -57,15 +60,28 @@ def show_score(x, y):
     score = font.render("Score : " + str(score_value), True, (255, 255, 255))
     screen.blit(score, (x, y))
 
+def show_img(x, y, alpha):
+
+
+    image = foodimg.copy()
+    # this works on images with per pixel alpha too
+    image.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
+    screen.blit(image, (x, y))
+
 clock = pygame.time.Clock()
 delta = 0.0
 max_tps = 200.0
 
-#food1 = Food()
-#food2 = Food()
-
 while True:
+
+
     show_score(textX, testY)
+
+    show_img(100, 100, 0)
+    show_img(150, 100, 0)
+    show_img(250, 100, 0)
+    show_img(320, 100, 0)
+    #print(q)
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             sys.exit(0)
@@ -89,7 +105,6 @@ while True:
             box.y += 1
 
     #drawing
-
 
     for food in foods:
         food.Draw()
