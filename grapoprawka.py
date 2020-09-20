@@ -1,8 +1,8 @@
 import pygame, sys, random, pygame.freetype
 from math import sqrt
 
-screen_width = 800
-screen_height = 600
+screen_width = 1600
+screen_height = 800
 score_value = 0
 
 class Food(object):
