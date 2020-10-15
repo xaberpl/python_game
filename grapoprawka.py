@@ -1,4 +1,4 @@
-import pygame, sys, random, pygame.freetype
+import pygame, sys, random, pygame.freetype, time
 import os
 from math import sqrt, sin, pi
 
@@ -23,8 +23,8 @@ class Food(object):
         self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         self.x = random.randint(self.size, screen_width - self.size)
         self.y = random.randint(self.size, screen_height - self.size)
-
         self.eatten = False
+
     def Draw(self):
         if self.eatten:
             return
@@ -45,7 +45,6 @@ pygame.init()
 
 foods = []
 for i in range (0, 50):
-    print(i)
     foods.append(Food())
 
 screen = pygame.display.set_mode((screen_width, screen_height))
@@ -55,11 +54,18 @@ foodimg = pygame.image.load('destroy.tga')
 arrowimg = pygame.image.load('arrow.png')
 
 textX = 10
-testY = 10
+textY = 10
+fpsX = 1450
+fpsY = 10
+
 
 def show_score(x, y):
     score = font.render("Score : " + str(score_value), True, (255, 255, 255))
     screen.blit(score, (x, y))
+
+def show_fps(x, y):
+    showfps = font.render("FPS : " + str(fps), True, (255, 255, 255))
+    screen.blit(showfps, (x, y))
 
 def show_img(x, y, alpha):
 
@@ -72,39 +78,33 @@ def show_arrowimg(x, y):
     screen.blit(arrowimg, (x, y))
 
 clock = pygame.time.Clock()
-delta = 0.0
-max_tps = 200.0
 
 arrow = Arrow(0, 0)
 
 while True:
     show_arrowimg(arrow.x, arrow.y)
     t = pygame.time.get_ticks()
-
-    show_score(textX, testY)
-
-    #print(q)
+    show_score(textX, textY)
 
     for event in pygame.event.get():
+
         if event.type == pygame.QUIT:
             sys.exit(0)
+    t2 = clock.tick()/1000.0
+    v = 100
+    s = v * t2
+    fps = round(1/t2)
+    show_fps(fpsX, fpsY)
+    keys = pygame.key.get_pressed()
 
-    #ticking
-    delta += clock.tick()/1000.0
-    while delta > 1 / max_tps:
-        delta -= 1 / max_tps
-
-        # wcisniecie klawisza sprwadzanie
-        keys = pygame.key.get_pressed()
-
-        if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
-            arrow.x += 1
-        if keys[pygame.K_a] or keys[pygame.K_LEFT]:
-            arrow.x -= 1
-        if keys[pygame.K_w] or keys[pygame.K_UP]:
-            arrow.y -= 1
-        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            arrow.y += 1
+    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+        arrow.x += s
+    if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+        arrow.x -= s
+    if keys[pygame.K_w] or keys[pygame.K_UP]:
+        arrow.y -= s
+    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+        arrow.y += s
 
     #drawing
 
