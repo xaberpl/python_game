@@ -10,11 +10,13 @@ score_value = 0
 os.environ['SDL_VIDEO_WINDOW_POS'] = '%i,%i' % (0, 30)
 
 class Arrow(object):
-    def __init__(self, x, y):
+    def __init__(self, x, y, angle):
         self.x = x
         self.y = y
+        self.angle = angle
     def Draw(self):
-        show_arrowimg(self.x, self.y)
+        show_arrowimg(self.x, self.y, self.angle)
+
 
 class Food(object):
     def __init__(self):
@@ -32,8 +34,6 @@ class Food(object):
         n = 96
         q = ((sin(z) + 1) / 2.0 * (255 - n) + n)
         show_img(self.x - self.size/2 , self.y - self.size/2, q)
-        #food = pygame.Rect(self.x - self.size/2, self.y - self.size/2, self.size, self.size)
-        #pygame.draw.rect(screen, (self.color), food)
 
     def Eat(self):
         global score_value
@@ -74,27 +74,30 @@ def show_img(x, y, alpha):
     image.fill((255, 255, 255, alpha), None, pygame.BLEND_RGBA_MULT)
     screen.blit(image, (x, y))
 
-def show_arrowimg(x, y):
-    screen.blit(arrowimg, (x, y))
+def show_arrowimg(x, y, angle):
+    pos = (x, y)
+    rotated_image = pygame.transform.rotate(arrowimg, angle)
+    screen.blit(rotated_image, pos)
 
 clock = pygame.time.Clock()
 
-arrow = Arrow(0, 0)
+arrow = Arrow(0, 0, 0)
 
 while True:
-    show_arrowimg(arrow.x, arrow.y)
+    show_arrowimg(arrow.x, arrow.y, arrow.angle)
     t = pygame.time.get_ticks()
     show_score(textX, textY)
 
     for event in pygame.event.get():
-
         if event.type == pygame.QUIT:
             sys.exit(0)
+
     t2 = clock.tick()/1000.0
     v = 100
     s = v * t2
     fps = round(1/t2)
     show_fps(fpsX, fpsY)
+
     keys = pygame.key.get_pressed()
 
     if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
@@ -106,6 +109,14 @@ while True:
     if keys[pygame.K_s] or keys[pygame.K_DOWN]:
         arrow.y += s
 
+    if keys[pygame.K_r]:
+        arrow.angle += 1
+
+
+    #pygame.display.flip()
+
+
+
     #drawing
 
     for food in foods:
@@ -116,4 +127,5 @@ while True:
             food.Eat()
 
     pygame.display.flip()
+
     screen.fill((0, 0, 0))
