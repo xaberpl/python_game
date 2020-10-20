@@ -108,17 +108,20 @@ while True:
 
     keys = pygame.key.get_pressed()
 
-    if keys[pygame.K_d] or keys[pygame.K_RIGHT]:
+    if keys[pygame.K_d]:
         arrow.x += s
-    if keys[pygame.K_a] or keys[pygame.K_LEFT]:
+    if keys[pygame.K_a]:
         arrow.x -= s
-    if keys[pygame.K_w] or keys[pygame.K_UP]:
+    if keys[pygame.K_w]:
         arrow.y -= s
-    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+    if keys[pygame.K_s]:
         arrow.y += s
-
-    if keys[pygame.K_r]:
+    if keys[pygame.K_LEFT]:
         arrow.angle += 1
+    if keys[pygame.K_RIGHT]:
+        arrow.angle -= 1
+
+
 
     #drawing
 
