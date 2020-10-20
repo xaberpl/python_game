@@ -58,7 +58,6 @@ textY = 10
 fpsX = 1450
 fpsY = 10
 
-
 def show_score(x, y):
     score = font.render("Score : " + str(score_value), True, (255, 255, 255))
     screen.blit(score, (x, y))
@@ -76,8 +75,17 @@ def show_img(x, y, alpha):
 
 def show_arrowimg(x, y, angle):
     pos = (x, y)
+    w, h = foodimg.get_size()
+    pivot = pygame.math.Vector2(w / 2, -h / 2)
+    pivot_rotate = pivot.rotate(angle)
+    pivot_move = pivot_rotate - pivot
+    box = [pygame.math.Vector2(p) for p in [(0, 0), (w, 0), (w, -h), (0, -h)]]
+    box_rotate = [p.rotate(angle) for p in box]
+    min_box = (min(box_rotate, key=lambda p: p[0])[0], min(box_rotate, key=lambda p: p[1])[1])
+    max_box = (max(box_rotate, key=lambda p: p[0])[0], max(box_rotate, key=lambda p: p[1])[1])
+    origin = (pos[0] + min_box[0] - pivot_move[0], pos[1] - max_box[1] + pivot_move[1])
     rotated_image = pygame.transform.rotate(arrowimg, angle)
-    screen.blit(rotated_image, pos)
+    screen.blit(rotated_image, origin)
 
 clock = pygame.time.Clock()
 
@@ -111,11 +119,6 @@ while True:
 
     if keys[pygame.K_r]:
         arrow.angle += 1
-
-
-    #pygame.display.flip()
-
-
 
     #drawing
 
