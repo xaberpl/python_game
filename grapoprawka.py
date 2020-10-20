@@ -1,6 +1,6 @@
 import pygame, sys, random, pygame.freetype, time
 import os
-from math import sqrt, sin, pi
+import math
 
 screen_width = 1600
 screen_height = 800
@@ -20,7 +20,7 @@ class Arrow(object):
 
 class Food(object):
     def __init__(self):
-        self.phase = random.uniform(0, 2 * pi)
+        self.phase = random.uniform(0, 2 * math.pi)
         self.size = 30
         self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         self.x = random.randint(self.size, screen_width - self.size)
@@ -30,9 +30,9 @@ class Food(object):
     def Draw(self):
         if self.eatten:
             return
-        z = t / 1000.0 * 2 * pi + self.phase
+        z = t / 1000.0 * 2 * math.pi + self.phase
         n = 96
-        q = ((sin(z) + 1) / 2.0 * (255 - n) + n)
+        q = ((math.sin(z) + 1) / 2.0 * (255 - n) + n)
         show_img(self.x - self.size/2 , self.y - self.size/2, q)
 
     def Eat(self):
@@ -107,15 +107,18 @@ while True:
     show_fps(fpsX, fpsY)
 
     keys = pygame.key.get_pressed()
-
     if keys[pygame.K_d]:
-        arrow.x += s
+        arrow.x -= s * math.sin(math.radians(arrow.angle - 90))
+        arrow.y -= s * math.cos(math.radians(arrow.angle - 90))
     if keys[pygame.K_a]:
-        arrow.x -= s
-    if keys[pygame.K_w]:
-        arrow.y -= s
-    if keys[pygame.K_s]:
-        arrow.y += s
+        arrow.x -= s * math.sin(math.radians(arrow.angle + 90))
+        arrow.y -= s * math.cos(math.radians(arrow.angle + 90))
+    if keys[pygame.K_w] or keys[pygame.K_UP]:
+        arrow.x -= s * math.sin(math.radians(arrow.angle))
+        arrow.y -= s * math.cos(math.radians(arrow.angle))
+    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+        arrow.x += s * math.sin(math.radians(arrow.angle))
+        arrow.y += s * math.cos(math.radians(arrow.angle))
     if keys[pygame.K_LEFT]:
         arrow.angle += 1
     if keys[pygame.K_RIGHT]:
@@ -129,7 +132,7 @@ while True:
         food.Draw()
 
     for food in foods:
-        if sqrt((arrow.x + 25 - food.x)*(arrow.x + 25 - food.x)+(arrow.y + 25 - food.y)*(arrow.y + 25 - food.y)) < 35:
+        if math.sqrt((arrow.x + 25 - food.x)*(arrow.x + 25 - food.x)+(arrow.y + 25 - food.y)*(arrow.y + 25 - food.y)) < 35:
             food.Eat()
 
     pygame.display.flip()
