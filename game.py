@@ -59,6 +59,7 @@ fpsX = 1450
 fpsY = 10
 timeX = 720
 timeY = 10
+highscore = 9999999
 
 def show_score(x, y):
     score = font.render("SCORE : " + str(score_value), True, (255, 255, 255))
@@ -107,7 +108,9 @@ while True:
     if score_value < len(foods):
         stopwatch = round(start_ticking, 2)
     else:
-        pass
+        if stopwatch < highscore:
+            highscore = stopwatch
+            print(highscore)
 
     show_arrowimg(arrow.x, arrow.y, arrow.angle)
     t = pygame.time.get_ticks()
