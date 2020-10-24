@@ -2,9 +2,9 @@ import pygame, sys, random, pygame.freetype, time
 import os
 import math
 
+INT_INFINITY = 999999999
 screen_width = 1600
 screen_height = 800
-score_value = 0
 
 # window center
 os.environ['SDL_VIDEO_WINDOW_POS'] = '%i,%i' % (0, 30)
@@ -17,12 +17,10 @@ class Arrow(object):
     def Draw(self):
         show_arrowimg(self.x, self.y, self.angle)
 
-
 class Food(object):
     def __init__(self):
         self.phase = random.uniform(0, 2 * math.pi)
         self.size = 30
-        self.color = (random.randint(0, 255), random.randint(0, 255), random.randint(0, 255))
         self.x = random.randint(self.size, screen_width - self.size)
         self.y = random.randint(self.size, screen_height - self.size)
         self.eatten = False
@@ -30,6 +28,7 @@ class Food(object):
     def Draw(self):
         if self.eatten:
             return
+        t = pygame.time.get_ticks()
         z = t / 1000.0 * 2 * math.pi + self.phase
         n = 96
         q = ((math.sin(z) + 1) / 2.0 * (255 - n) + n)
@@ -44,8 +43,6 @@ class Food(object):
 pygame.init()
 
 foods = []
-for i in range (0, 4):
-    foods.append(Food())
 
 screen = pygame.display.set_mode((screen_width, screen_height))
 
@@ -59,23 +56,30 @@ fpsX = 1450
 fpsY = 10
 timeX = 720
 timeY = 10
-highscore = 9999999
+highscore = INT_INFINITY
+
+def reset_game():
+    global score_value
+    global foods
+    score_value = 0
+    foods.clear()
+    for i in range(0, 4):
+        foods.append(Food())
 
 def show_score(x, y):
     score = font.render("SCORE : " + str(score_value), True, (255, 255, 255))
     screen.blit(score, (x, y))
 
-def show_fps(x, y):
+def show_fps(x, y, fps):
     showfps = font.render("FPS : " + str(fps), True, (255, 255, 255))
     screen.blit(showfps, (x, y))
 
-def show_time(x, y):
+def show_time(x, y, stopwatch, matchtime):
     if score_value < len(foods):
-        showtime = font.render("TIME : " + str(stopwatch), True, (255, 255, 255))
+        showtime = font.render("TIME : " + str(round(stopwatch - matchtime, 2)), True, (255, 255, 255))
     else:
-        showtime = font.render("TIME : " + str(stopwatch), True, (255, 200, 0))
+        showtime = font.render("TIME : " + str(round(stopwatch - matchtime, 2)), True, (255, 200, 0))
     screen.blit(showtime, (x, y))
-
 
 def show_img(x, y, alpha):
 
@@ -102,61 +106,71 @@ clock = pygame.time.Clock()
 
 arrow = Arrow(0, 0, 0)
 
-while True:
-    #timer
-    start_ticking = pygame.time.get_ticks() / 1000
-    if score_value < len(foods):
-        stopwatch = round(start_ticking, 2)
-    else:
-        if stopwatch < highscore:
-            highscore = stopwatch
-            print(highscore)
+reset_game()
 
-    show_arrowimg(arrow.x, arrow.y, arrow.angle)
-    t = pygame.time.get_ticks()
-    show_score(textX, textY)
+def game_loop():
+    matchtime = 0
+    highscore = INT_INFINITY
+    game_over = False
+    while not game_over:
+        #timer
+        start_ticking = pygame.time.get_ticks() / 1000
+        if score_value < len(foods):
+            stopwatch = round(start_ticking, 2)
+        else:
+            if stopwatch < highscore:
+                highscore = stopwatch
 
-    t2 = clock.tick()/1000.0
-    v = 300
-    s = v * t2
-    fps = round(1/t2)
-    show_fps(fpsX, fpsY)
-    show_time(timeX, timeY)
+            keys = pygame.key.get_pressed()
 
-    keys = pygame.key.get_pressed()
+            if keys[pygame.K_r]:
+                print(start_ticking)
+                matchtime = pygame.time.get_ticks() / 1000
+                reset_game()
 
-    for event in pygame.event.get():
-        if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
-            sys.exit(0)
+        show_arrowimg(arrow.x, arrow.y, arrow.angle)
+        show_score(textX, textY)
 
-    if keys[pygame.K_d]:
-        arrow.x -= s * math.sin(math.radians(arrow.angle - 90))
-        arrow.y -= s * math.cos(math.radians(arrow.angle - 90))
-    if keys[pygame.K_a]:
-        arrow.x -= s * math.sin(math.radians(arrow.angle + 90))
-        arrow.y -= s * math.cos(math.radians(arrow.angle + 90))
-    if keys[pygame.K_w] or keys[pygame.K_UP]:
-        arrow.x -= s * math.sin(math.radians(arrow.angle))
-        arrow.y -= s * math.cos(math.radians(arrow.angle))
-    if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-        arrow.x += s * math.sin(math.radians(arrow.angle))
-        arrow.y += s * math.cos(math.radians(arrow.angle))
-    if keys[pygame.K_LEFT]:
-        arrow.angle += 1
-    if keys[pygame.K_RIGHT]:
-        arrow.angle -= 1
+        t2 = clock.tick()/1000.0
+        v = 300
+        s = v * t2
+        fps = round(1/t2)
+        show_fps(fpsX, fpsY, fps)
 
+        show_time(timeX, timeY, stopwatch, matchtime)
 
+        for event in pygame.event.get():
+            keys = pygame.key.get_pressed()
+            if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
+                sys.exit(0)
 
-    #drawing
+        if keys[pygame.K_d]:
+            arrow.x -= s * math.sin(math.radians(arrow.angle - 90))
+            arrow.y -= s * math.cos(math.radians(arrow.angle - 90))
+        if keys[pygame.K_a]:
+            arrow.x -= s * math.sin(math.radians(arrow.angle + 90))
+            arrow.y -= s * math.cos(math.radians(arrow.angle + 90))
+        if keys[pygame.K_w] or keys[pygame.K_UP]:
+            arrow.x -= s * math.sin(math.radians(arrow.angle))
+            arrow.y -= s * math.cos(math.radians(arrow.angle))
+        if keys[pygame.K_s] or keys[pygame.K_DOWN]:
+            arrow.x += s * math.sin(math.radians(arrow.angle))
+            arrow.y += s * math.cos(math.radians(arrow.angle))
+        if keys[pygame.K_LEFT]:
+            arrow.angle += 1
+        if keys[pygame.K_RIGHT]:
+            arrow.angle -= 1
 
-    for food in foods:
-        food.Draw()
+        #drawing
 
-    for food in foods:
-        if math.sqrt((arrow.x + 25 - food.x)*(arrow.x + 25 - food.x)+(arrow.y + 25 - food.y)*(arrow.y + 25 - food.y)) < 35:
-            food.Eat()
+        for food in foods:
+            food.Draw()
 
-    pygame.display.flip()
+        for food in foods:
+            if math.sqrt((arrow.x + 25 - food.x)*(arrow.x + 25 - food.x)+(arrow.y + 25 - food.y)*(arrow.y + 25 - food.y)) < 35:
+                food.Eat()
 
-    screen.fill((0, 0, 0))
+        pygame.display.flip()
+
+        screen.fill((0, 0, 0))
+game_loop()
