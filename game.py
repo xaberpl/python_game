@@ -56,12 +56,25 @@ fpsX = 1450
 fpsY = 10
 timeX = 720
 timeY = 10
+highscoreX = 1330
+highscoreY = 760
 highscore = INT_INFINITY
+timestamp = 0
+
+def getRoundTime():
+    global timestamp
+    return pygame.time.get_ticks() / 1000 - timestamp
+
+def isEnded():
+    global score_value
+    return score_value >= len(foods)
 
 def reset_game():
     global score_value
     global foods
+    global stopwatch
     score_value = 0
+    stopwatch = 0
     foods.clear()
     for i in range(0, 4):
         foods.append(Food())
@@ -74,12 +87,21 @@ def show_fps(x, y, fps):
     showfps = font.render("FPS : " + str(fps), True, (255, 255, 255))
     screen.blit(showfps, (x, y))
 
-def show_time(x, y, stopwatch, matchtime):
-    if score_value < len(foods):
-        showtime = font.render("TIME : " + str(round(stopwatch - matchtime, 2)), True, (255, 255, 255))
+def show_time(x, y):
+    global timestamp
+    if not isEnded():
+        showtime = font.render("TIME : " + str(round(getRoundTime(), 2)), True, (255, 255, 255))
     else:
-        showtime = font.render("TIME : " + str(round(stopwatch - matchtime, 2)), True, (255, 200, 0))
+        showtime = font.render("TIME : " + str(round(TimeToCollect, 2)), True, (255, 200, 0))
     screen.blit(showtime, (x, y))
+
+def show_highscore(x, y, highscore):
+    if highscore == INT_INFINITY:
+        showhighscore = font.render("Highscore : " + str("-------"), True, (255, 255, 255))
+        screen.blit(showhighscore, (x, y))
+    else:
+        showhighscore = font.render("Highscore : " + str(highscore), True, (255, 255, 255))
+        screen.blit(showhighscore, (x, y))
 
 def show_img(x, y, alpha):
 
@@ -107,25 +129,25 @@ clock = pygame.time.Clock()
 arrow = Arrow(0, 0, 0)
 
 reset_game()
-
 def game_loop():
-    matchtime = 0
+    global timestamp
+    global TimeToCollect
     highscore = INT_INFINITY
     game_over = False
     while not game_over:
         #timer
         start_ticking = pygame.time.get_ticks() / 1000
-        if score_value < len(foods):
-            stopwatch = round(start_ticking, 2)
+
+        if not isEnded():
+            stopwatch = round(start_ticking, 2) - timestamp #hmiscore
         else:
+            TimeToCollect = round(stopwatch, 2)
             if stopwatch < highscore:
-                highscore = stopwatch
+                highscore = round(stopwatch, 2)
 
             keys = pygame.key.get_pressed()
-
             if keys[pygame.K_r]:
-                print(start_ticking)
-                matchtime = pygame.time.get_ticks() / 1000
+                timestamp = pygame.time.get_ticks() / 1000
                 reset_game()
 
         show_arrowimg(arrow.x, arrow.y, arrow.angle)
@@ -137,13 +159,16 @@ def game_loop():
         fps = round(1/t2)
         show_fps(fpsX, fpsY, fps)
 
-        show_time(timeX, timeY, stopwatch, matchtime)
+        show_time(timeX, timeY)
+
+        show_highscore(highscoreX, highscoreY, highscore)
 
         for event in pygame.event.get():
             keys = pygame.key.get_pressed()
             if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
                 sys.exit(0)
 
+        keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
             arrow.x -= s * math.sin(math.radians(arrow.angle - 90))
             arrow.y -= s * math.cos(math.radians(arrow.angle - 90))
