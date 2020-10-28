@@ -3,6 +3,7 @@ import os
 import math
 
 INT_INFINITY = 999999999
+
 screen_width = 1600
 screen_height = 800
 
@@ -58,8 +59,23 @@ timeX = 720
 timeY = 10
 highscoreX = 1330
 highscoreY = 760
-highscore = INT_INFINITY
 timestamp = 0
+
+def check_file_exist():
+    return os.path.isfile("highscore.txt")
+
+def save_to_file(x):
+    highscorelist = open("highscore.txt", "w+")
+    highscorelist.write(str(x))
+    highscorelist.close()
+
+def read_from_file():
+    global highscore
+    if not check_file_exist():
+        return
+    highscorelist = open("highscore.txt", "r")
+    highscore = float(highscorelist.read())
+    highscorelist.close()
 
 def getRoundTime():
     global timestamp
@@ -95,11 +111,7 @@ def show_time(x, y):
         showtime = font.render("TIME : " + str(round(TimeToCollect, 2)), True, (255, 200, 0))
     screen.blit(showtime, (x, y))
 
-def show_highscore(x, y, highscore):
-    if highscore == INT_INFINITY:
-        showhighscore = font.render("Highscore : " + str("-------"), True, (255, 255, 255))
-        screen.blit(showhighscore, (x, y))
-    else:
+def show_highscore(x, y):
         showhighscore = font.render("Highscore : " + str(highscore), True, (255, 255, 255))
         screen.blit(showhighscore, (x, y))
 
@@ -125,14 +137,16 @@ def show_arrowimg(x, y, angle):
     screen.blit(rotated_image, origin)
 
 clock = pygame.time.Clock()
-
 arrow = Arrow(0, 0, 0)
+highscore =  INT_INFINITY
 
 reset_game()
+
 def game_loop():
+    read_from_file()
     global timestamp
+    global highscore
     global TimeToCollect
-    highscore = INT_INFINITY
     game_over = False
     while not game_over:
         #timer
@@ -161,11 +175,13 @@ def game_loop():
 
         show_time(timeX, timeY)
 
-        show_highscore(highscoreX, highscoreY, highscore)
+        show_highscore(highscoreX, highscoreY)
 
         for event in pygame.event.get():
             keys = pygame.key.get_pressed()
+
             if event.type == pygame.QUIT or keys[pygame.K_ESCAPE]:
+                save_to_file(highscore)
                 sys.exit(0)
 
         keys = pygame.key.get_pressed()
@@ -187,7 +203,6 @@ def game_loop():
             arrow.angle -= 1
 
         #drawing
-
         for food in foods:
             food.Draw()
 
