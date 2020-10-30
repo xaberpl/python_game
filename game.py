@@ -61,6 +61,16 @@ highscoreX = 1330
 highscoreY = 760
 timestamp = 0
 
+
+def Move(dx, dy):
+    global arrow
+    arrow.x += dx
+    arrow.y += dy
+    if arrow.x > screen_width - 64 or arrow.x < 0:
+        arrow.x -= dx
+    if arrow.y > screen_height - 64 or arrow.y < 0:
+        arrow.y -= dy
+
 def check_file_exist():
     return os.path.isfile("highscore.txt")
 
@@ -186,21 +196,26 @@ def game_loop():
 
         keys = pygame.key.get_pressed()
         if keys[pygame.K_d]:
-            arrow.x -= s * math.sin(math.radians(arrow.angle - 90))
-            arrow.y -= s * math.cos(math.radians(arrow.angle - 90))
+            dx = s * math.sin(math.radians(arrow.angle - 90))
+            dy = s * math.cos(math.radians(arrow.angle - 90))
+            Move(-dx, -dy)
         if keys[pygame.K_a]:
-            arrow.x -= s * math.sin(math.radians(arrow.angle + 90))
-            arrow.y -= s * math.cos(math.radians(arrow.angle + 90))
-        if keys[pygame.K_w] or keys[pygame.K_UP]:
-            arrow.x -= s * math.sin(math.radians(arrow.angle))
-            arrow.y -= s * math.cos(math.radians(arrow.angle))
+            dx = s * math.sin(math.radians(arrow.angle + 90))
+            dy = s * math.cos(math.radians(arrow.angle + 90))
+            Move(-dx, -dy)
+        if  keys[pygame.K_w] or keys[pygame.K_UP]:
+            dx = s * math.sin(math.radians(arrow.angle))
+            dy = s * math.cos(math.radians(arrow.angle))
+            Move(-dx, -dy)
         if keys[pygame.K_s] or keys[pygame.K_DOWN]:
-            arrow.x += s * math.sin(math.radians(arrow.angle))
-            arrow.y += s * math.cos(math.radians(arrow.angle))
+            dx = s * math.sin(math.radians(arrow.angle))
+            dy = s * math.cos(math.radians(arrow.angle))
+            Move(dx, dy)
         if keys[pygame.K_LEFT]:
             arrow.angle += 1
         if keys[pygame.K_RIGHT]:
             arrow.angle -= 1
+
 
         #drawing
         for food in foods:
